@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    Column, Integer, String, Boolean, ForeignKey
+    Column, DateTime, Integer, String, Boolean, ForeignKey
 )
 from sqlalchemy.orm import relationship
 
@@ -26,6 +26,8 @@ class BrandCompanyAssignment(Base):
     id = Column(Integer, primary_key=True)
     brand_id = Column(Integer, ForeignKey("Brand.id"), nullable=False)
     sub_company_id = Column(Integer, ForeignKey("SubCompany.id"), nullable=False)
+    deactivated_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=True)
     is_active = Column(Boolean, nullable=False)
     
     # Relationships

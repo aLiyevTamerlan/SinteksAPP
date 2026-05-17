@@ -14,7 +14,7 @@ class BrandService:
         self.repository = BrandRepository(session)
         self.sub_company_repo = sub_company_repo
 
-    async def create(self, data: BrandCreate) -> dict:
+    async def create_brand(self, data: BrandCreate) -> dict:
         """Create a new brand with sub-company assignment through the service layer."""
         data_dict = data.model_dump()
         sub_company_id = data_dict.pop("sub_company_id", None)
@@ -28,10 +28,10 @@ class BrandService:
         
         return result
 
-    async def get(self, brand_id: int) -> Brand | None:
+    async def get_brand(self, brand_id: int) -> Brand | None:
         """Get a brand by ID through the repository."""
         return await self.repository.get(brand_id=brand_id)
 
-    async def get_all(self) -> list[Brand]:
+    async def get_all_brands(self) -> list[Brand]:
         """Get all brands through the repository."""
         return await self.repository.get_all()

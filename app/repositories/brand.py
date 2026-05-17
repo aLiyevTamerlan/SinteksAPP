@@ -37,3 +37,9 @@ class BrandRepository:
         )
         
         await self.session.commit()
+
+    async def get_brand(self, brand_id: int) -> Brand | None:
+        """Get a brand by ID."""
+        stmt = select(Brand).where(Brand.id == brand_id)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()

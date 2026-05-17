@@ -14,8 +14,25 @@ class ProductCategory(Base):
     # Relationships
     products = relationship("Product", back_populates="category")
     discount_categories = relationship("DiscountCategory", back_populates="category")
- 
- 
+
+class ProductAssortment(Base):
+    __tablename__ = "ProductAssortment"
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    product_id = Column(
+        ForeignKey("Product.id"),
+        nullable=False
+    )
+
+    branch_id = Column(
+        ForeignKey("Branch.id"),
+        nullable=False
+    )
+    is_active = Column(Boolean, nullable=False)
+    # Relationships
+    stocks = relationship("Stock", back_populates="assortment")
+
 class Product(Base):
     __tablename__ = "Product"
     

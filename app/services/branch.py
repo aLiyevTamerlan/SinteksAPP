@@ -19,7 +19,7 @@ class BranchService:
         brand_id = data_dict.get("brand_id")
         
         # Validate brand existence through brand repository interface
-        brand = await self.brand_repo.get_brand(brand_id=brand_id)
+        brand = await self.brand_repo.get_by_id(brand_id=brand_id)
         if not brand:
             ... #Add error handling for non-existent brand (e.g., raise HTTPException with 404)
         
@@ -28,4 +28,4 @@ class BranchService:
 
     async def get_branch(self, branch_id: int) -> Optional[Branch]:
         """Get a branch by ID through the repository."""
-        return await self.repository.get(branch_id=branch_id)
+        return await self.repository.get_by_id(branch_id=branch_id)

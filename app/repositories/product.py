@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 from app.models.product import Product
 
 
@@ -13,3 +13,9 @@ class ProductRepository:
         result = await self.session.execute(stmt)
         await self.session.commit()
         return result.scalar_one()
+    
+    async def get_by_id(self, product_id: int) -> Product | None:
+        """Get a product by ID."""
+        stmt = select(Product).where(Product.id == product_id)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()

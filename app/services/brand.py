@@ -30,7 +30,7 @@ class BrandService:
 
     async def get_brand(self, brand_id: int) -> Brand | None:
         """Get a brand by ID through the repository."""
-        return await self.repository.get(brand_id=brand_id)
+        return await self.repository.get_by_id(brand_id=brand_id)
 
     async def get_all_brands(self) -> list[Brand]:
         """Get all brands through the repository."""

@@ -11,6 +11,6 @@ class ISubCompanyRepository(Protocol):
         """Create a new sub-company."""
         ...
         
-    async def get(self, sub_company_id: int) -> SubCompany | None:
+    async def get_by_id(self, sub_company_id: int) -> SubCompany | None:
         """Get a sub-company by ID."""
         ...

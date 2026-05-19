@@ -7,7 +7,7 @@ class SubCompanyRepository():
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get(self, sub_company_id: int) -> SubCompany | None:
+    async def get_by_id(self, sub_company_id: int) -> SubCompany | None:
         """Get a sub-company by ID."""
         stmt = select(SubCompany).where(SubCompany.id == sub_company_id)
         result = await self.session.execute(stmt)

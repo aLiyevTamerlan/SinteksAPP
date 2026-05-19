@@ -15,6 +15,6 @@ class IBrandRepository(Protocol):
         """Change brand's company (handles the history internally)."""
         ...
 
-    async def get_brand(self, brand_id: int) -> Brand | None:
+    async def get_by_id(self, brand_id: int) -> Brand | None:
         """Get a brand by ID."""
         ...

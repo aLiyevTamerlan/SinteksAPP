@@ -20,7 +20,7 @@ class ProductService:
         self.repository = ProductRepository(session)
         self.brand_repo = brand_repo
  
-    async def create(self, data: ProductCreate) -> Product:
+    async def create_product(self, data: ProductCreate) -> Product:
 
         # Validate that the brand exists and is active
         brand = await self.brand_repo.get(data.brand_id)

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.api import router as api_router
+from app.exceptions.handlers import register_exception_handlers
 
 
 
@@ -26,6 +27,7 @@ app.add_middleware(
 )
 
 # Register exception handlers
+register_exception_handlers(app)
 
 # Include API routers
 app.include_router(api_router, prefix="/api")

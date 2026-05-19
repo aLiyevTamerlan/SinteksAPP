@@ -4,6 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
 from app.api.v1.schemas.product import ProductCreate, ProductSell
+from app.exceptions.branch import BranchNotFoundException
+from app.exceptions.product import ProductBrandMismatchException, ProductNotAvailableInBranchException, ProductNotFoundException
+from app.exceptions.stock import InsufficientStockException, OutOfStockException
 from app.interfaces.brand_repository import IBrandRepository
 from app.interfaces.product_repository import IProductRepository
 from app.interfaces.branch_repository import IBranchRepository
@@ -35,39 +38,40 @@ class ProductService:
         # Implementation for selling a product goes here
         product = await self.repository.get_by_id(data.product_id)
         if not product:
-            raise ProductNotFound(
-                f"Product ID {data.product_id} tapılmadı"
+            raise ProductNotFoundException(
+                resource="Product",
+                resource_id=data.product_id,
             )
         branch = await self.branch_repo.get_by_id(data.branch_id)
         if not branch:
-            raise BranchNotFound(
-                f"Branch ID {data.branch_id} tapılmadı"
+            raise BranchNotFoundException(
+                resource="Branch",
+                resource_id=data.branch_id,
             )
         if product.brand_id != branch.brand_id:
-            raise ProductBrandMismatch(
-                f"Product (Brand {product.brand_id}) bu branchə "
-                f"(Brand {branch.brand_id}) aid deyil"
+            raise ProductBrandMismatchException(
+                message=f"Product {product.name} not belongs to brand {branch.brand_id}"
             )
         assortment = await self.assortment_repo.get_by_product_and_branch(
             product_id=product.id,
             branch_id=branch.id,
         )
         if not assortment or not assortment.is_active:
-            raise ProductNotAvailableInBranch(
-                f"Product {product.name} bu branchda mövcud deyil/aktiv deyil"
+            raise ProductNotAvailableInBranchException(
+                message=f"Product {product.name} not available in branch {branch.name}"
             )
         stock = await self.stock_repo.get_by_product_and_branch(
             product_id=product.id,
             branch_id=branch.id,
         )
         if not stock or stock.quantity <= 0:
-            raise OutOfStock(
-                f"Product {product.name} stokda mövcud deyil"
+            raise OutOfStockException(
+                message=f"Product {product.name} stokda mövcud deyil"
             )
         if stock.quantity < data.requested_qty:
-            raise InsufficientStock(
-                f"Stokda {stock.quantity} dənə var, "
-                f"{data.requested_qty} dənə tələb edilir"
+            raise InsufficientStockException(
+                message=f"Stokda {stock.quantity} dənə var, "
+                         f"{data.requested_qty} dənə tələb edilir"
             )
         
     async def create_product(self, data: ProductCreate) -> Product:
@@ -75,32 +79,17 @@ class ProductService:
         # Validate that the brand exists and is active
         brand = await self.brand_repo.get_by_id(data.brand_id)
         if not brand:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Brand with ID {data.brand_id} does not exist"
-            )
+            raise ValueError(f"Brand with ID {data.brand_id} does not exist")
         if not brand.is_active:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Cannot create product under inactive brand {data.brand_id}"
-            )
+            raise ValueError(f"Cannot create product under inactive brand {data.brand_id}")
         
         # Validate prices
         if data.purchase_price < 0:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Purchase price cannot be negative"
-            )
+            raise ValueError("Purchase price cannot be negative")
         if data.base_selling_price < 0:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Base selling price cannot be negative"
-            )
+            raise ValueError("Base selling price cannot be negative")
         if data.base_selling_price < data.purchase_price:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Base selling price must be >= purchase price"
-            )
+            raise ValueError("Base selling price must be >= purchase price")
         
         # Create product through repository
         product_data = data.model_dump()

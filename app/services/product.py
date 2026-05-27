@@ -1,17 +1,7 @@
-
-
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional
 
 from app.api.v1.schemas.product import ProductCreate, ProductSell
-from app.exceptions.branch import BranchNotFoundException
-from app.exceptions.product import ProductBrandMismatchException, ProductNotAvailableInBranchException, ProductNotFoundException
-from app.exceptions.stock import InsufficientStockException, OutOfStockException
-from app.interfaces.brand_repository import IBrandRepository
-from app.interfaces.product_repository import IProductRepository
-from app.interfaces.branch_repository import IBranchRepository
-from app.interfaces.assortment_repository import IAssortmentRepository
-from app.interfaces.stock_repository import IStockRepository
+
 from app.repositories.product import ProductRepository
 from app.services.dtos.sell_context import SellContext
 from app.specifications.sell.assortment_available import AssortmentAvailableSpecification
@@ -20,7 +10,11 @@ from app.specifications.sell.product_brand_match import ProductBrandMatchSpec
 from app.specifications.sell.product_exists import ProductExistsSpec
 from app.specifications.sell.stock import StockAvailableSpec, StockQuantitySpec
 from app.specifications.validator import SellValidator
-from models.product import Product
+from app.models.product import Product
+from app.services.brand import BrandService
+from app.services.branch import BranchService
+from app.services.assortment import AssortmentService
+from app.services.stock import StockService
  
  
 class ProductService:
@@ -29,27 +23,27 @@ class ProductService:
     def __init__(
         self,
         session: AsyncSession,
-        brand_repo: IBrandRepository,
-        branch_repo: IBranchRepository,
-        assortment_repo: IAssortmentRepository,
-        stock_repo: IStockRepository,
+        brand_service: BrandService,
+        branch_service: BranchService,
+        assortment_service: AssortmentService,
+        stock_service: StockService,
     ):
         self.repository = ProductRepository(session)
-        self.brand_repo = brand_repo
-        self.branch_repo = branch_repo
-        self.assortment_repo = assortment_repo
-        self.stock_repo = stock_repo
+        self.brand_service = brand_service
+        self.branch_service = branch_service
+        self.assortment_service = assortment_service
+        self.stock_service = stock_service
 
 
     async def sell_product(self, data:ProductSell) -> Product:
         # Implementation for selling a product goes here
         product = await self.repository.get_by_id(data.product_id)
-        branch = await self.branch_repo.get_by_id(data.branch_id)
-        assortment = await self.assortment_repo.get_by_product_and_branch(
+        branch = await self.branch_service.get_branch(data.branch_id)
+        assortment = await self.assortment_service.get_assortment_by_product_and_branch(
             product_id=product.id,
             branch_id=branch.id,
         )
-        stock = await self.stock_repo.get_by_product_and_branch(
+        stock = await self.stock_service.get_stock_by_product_and_branch(
             product_id=product.id,
             branch_id=branch.id,
         )
@@ -74,7 +68,7 @@ class ProductService:
     async def create_product(self, data: ProductCreate) -> Product:
 
         # Validate that the brand exists and is active
-        brand = await self.brand_repo.get_by_id(data.brand_id)
+        brand = await self.brand_service.get_brand(brand_id=data.brand_id)
         if not brand:
             raise ValueError(f"Brand with ID {data.brand_id} does not exist")
         if not brand.is_active:

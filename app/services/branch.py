@@ -1,16 +1,16 @@
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.interfaces.brand_repository import IBrandRepository
 from app.api.v1.schemas.branch import BranchCreate
 from app.models.branch import Branch
 from app.repositories.branch import BranchRepository
+from app.services.brand import BrandService
 
 
 class BranchService:
-    def __init__(self, session: AsyncSession, brand_repo: IBrandRepository):
+    def __init__(self, session: AsyncSession, brand_service: BrandService):
         self.repository = BranchRepository(session)
-        self.brand_repo = brand_repo
+        self.brand_service = brand_service
  
     # Core CRUD
     async def create_branch(self, data: BranchCreate) -> Branch:
@@ -18,10 +18,10 @@ class BranchService:
         data_dict = data.model_dump()
         brand_id = data_dict.get("brand_id")
         
-        # Validate brand existence through brand repository interface
-        brand = await self.brand_repo.get_by_id(brand_id=brand_id)
+        # Validate brand existence through brand service
+        brand = await self.brand_service.get_brand(brand_id=brand_id)
         if not brand:
-            ... #Add error handling for non-existent brand (e.g., raise HTTPException with 404)
+            raise ValueError(f"Brand with ID {brand_id} does not exist")
         
         # Create branch through repository
         return await self.repository.create(data=data_dict)

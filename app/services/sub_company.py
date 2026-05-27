@@ -10,3 +10,7 @@ class SubCompanyService:
     async def create_sub_company(self, data: SubCompanyCreate) -> dict:
         """Create a new sub-company through the repository."""
         return await self.repository.create(data=data.model_dump())
+
+    async def get_sub_company(self, sub_company_id: int):
+        """Get a sub-company by ID."""
+        return await self.repository.get_by_id(sub_company_id)

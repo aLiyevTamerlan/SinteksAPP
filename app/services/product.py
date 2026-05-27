@@ -66,6 +66,13 @@ class ProductService:
             AssortmentAvailableSpecification()
         ])
         await validator.validate(sell_context)
+        
+        # Decrease stock after successful validation
+        await self.stock_service.decrease_stock(
+            product_id=product.id,
+            branch_id=branch.id,
+            quantity=data.quantity
+        )
 
         
     async def create_product(self, data: ProductCreate) -> Product:

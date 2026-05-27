@@ -1,3 +1,5 @@
+from __future__ import annotations  # ← ДОБАВЬ ЭТО!
+from typing import TYPE_CHECKING
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.schemas.product import ProductCreate, ProductSell
@@ -14,7 +16,8 @@ from app.models.product import Product
 from app.services.brand import BrandService
 from app.services.branch import BranchService
 from app.services.assortment import AssortmentService
-from app.services.stock import StockService
+if TYPE_CHECKING:
+    from app.services.stock import StockService
  
  
 class ProductService:
@@ -86,3 +89,7 @@ class ProductService:
         product_data = data.model_dump()
         result = await self.repository.create(product_data=product_data)
         return result
+
+    async def get_product(self, product_id: int) -> Product | None:
+        """Get a product by ID."""
+        return await self.repository.get_by_id(product_id)

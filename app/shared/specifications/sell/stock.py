@@ -1,5 +1,5 @@
 from app.exceptions.stock import InsufficientStockException, OutOfStockException
-from app.specifications.base import Specification
+from app.shared.specifications.base import Specification
 
 
 class StockAvailableSpec(Specification):

@@ -1,6 +1,6 @@
 from app.exceptions.product import ProductNotFoundException
 from app.services.dtos.sell_context import SellContext
-from app.specifications.base import Specification
+from app.shared.specifications.base import Specification
 
 
 class ProductExistsSpec(Specification[SellContext]):

@@ -6,12 +6,12 @@ from app.api.v1.schemas.product import ProductCreate, ProductSell
 
 from app.repositories.product import ProductRepository
 from app.services.dtos.sell_context import SellContext
-from app.specifications.sell.assortment_available import AssortmentAvailableSpecification
-from app.specifications.sell.branch_exists import BranchExistsSpec
-from app.specifications.sell.product_brand_match import ProductBrandMatchSpec
-from app.specifications.sell.product_exists import ProductExistsSpec
-from app.specifications.sell.stock import StockAvailableSpec, StockQuantitySpec
-from app.specifications.validator import SellValidator
+from app.shared.specifications.sell.assortment_available import AssortmentAvailableSpecification
+from app.shared.specifications.sell.branch_exists import BranchExistsSpec
+from app.shared.specifications.sell.product_brand_match import ProductBrandMatchSpec
+from app.shared.specifications.sell.product_exists import ProductExistsSpec
+from app.shared.specifications.sell.stock import StockAvailableSpec, StockQuantitySpec
+from app.shared.specifications.validator import SellValidator
 from app.models.product import Product
 from app.services.brand import BrandService
 from app.services.branch import BranchService

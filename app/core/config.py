@@ -20,7 +20,12 @@ class Settings(BaseSettings):
     DB_PASS: str
     DB_NAME: str
     DEBUG: bool = False
+    _instance = None
 
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     @property
     def DATABASE_URL(self):
